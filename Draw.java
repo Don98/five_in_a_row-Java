@@ -1,5 +1,6 @@
 import javax.swing.JPanel;
 import java.awt.*;
+import javax.swing.ImageIcon;
 
 public class Draw extends JPanel
 {
@@ -9,10 +10,16 @@ public class Draw extends JPanel
 	private boolean gameStart;
 	private int whichColor;
 	private int[][] place;//0无,1黑,2白
+	private ImageIcon black,white;
+	private int size = 15;
+	private int length = 50;
 	
 	public Draw()
 	{
 		place = new int[15][15];
+		String basePath = this.getClass().getResource("/").getPath();
+		black = new ImageIcon(basePath + "black.png");
+		white = new ImageIcon(basePath + "white.png");
 		this.setSize(800,800);
 		// this.setBackground(new Color(220,191,157)); // 木色
 		this.setBackground(new Color(192,192,192)); // 亮银色
@@ -23,12 +30,11 @@ public class Draw extends JPanel
 	{
 		super.paint(g);
 		paintQipan(g);
+		paintQizi(g);
 	}
 	
 	public void paintQipan(Graphics a)
 	{		
-		int size = 15;
-		int length = 50;
 		
 		Graphics2D g = (Graphics2D)a;
 		g.setStroke(new BasicStroke(3f));
@@ -57,8 +63,25 @@ public class Draw extends JPanel
 	
 	public void paintQizi(Graphics g)
 	{
-		for(int )
+		for(int i = 0;i < 15 ;i++)
+		{
+			for(int j = 0;j < 15;j++)
+			{
+				if(place[i][j] == 1)
+				{
+					g.drawImage(black.getImage(),i * length + shamt_x,j * length + shamt_y,length / 2 ,length / 2,this);
+				}
+				else if(place[i][j] == 2)
+				{
+					g.drawImage(white.getImage(),i * length + shamt_x,j * length + shamt_y,length / 2 ,length / 2,this);
+				}
+			}
+		}
 	}
+	// public void addListener()
+	// {
+		// this.addMouseListener(new MouseListener())
+	// }
 	public void playNewGame()
 	{
 		place = new int[15][15];

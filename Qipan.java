@@ -1,10 +1,12 @@
 import javafx.application.Application;
 import javax.swing.JFrame;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JLabel;
+import java.awt.event.*;
 
 public class Qipan extends JFrame
 {
@@ -73,23 +75,22 @@ public class Qipan extends JFrame
 	
 	public void addListener()
 	{
-		rr_renzhihei.addActionListener(new ActionListener())
+		rr_renzhihei.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				draw.getUser().setChessColor(1);
-				draw.getUser().setChessColor(1);
 			}
-		};
-		rr_renzhibai.addActionListener(new ActionListener())
+		});
+		rr_renzhibai.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				
+				draw.getUser().setChessColor(2);
 			}
-		};
+		});
 	}
 	public static void main(String[] args)
 	{
