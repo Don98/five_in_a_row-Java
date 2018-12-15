@@ -10,10 +10,12 @@ public class Qipan extends JFrame
 {
 	private JMenuBar bar;
 	private JMenu xitong;
-	private JMenuItem renrenduiyi;
+	private JMenu renrenduiyi;
+	private JMenuItem rr_renzhihei;
+	private JMenuItem rr_renzhibai;
 	private JMenu renjiduiyi;
-	private JMenuItem renzhihei;
-	private JMenuItem renzhibai;
+	private JMenuItem rj_renzhihei;
+	private JMenuItem rj_renzhibai;
 	private Draw draw;
 	private JLabel userInfo;
 	private JLabel gameInfo;
@@ -25,7 +27,7 @@ public class Qipan extends JFrame
 		
 		init();
 		
-		this.setSize(900,900);
+		this.setSize(1200,900);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int)d.getWidth();
@@ -39,10 +41,12 @@ public class Qipan extends JFrame
 	{
 		bar = new JMenuBar();
 		xitong = new JMenu("系统功能");
-		renrenduiyi = new JMenuItem("人人对弈");
+		renrenduiyi = new JMenu("人人对弈");
+		rr_renzhihei = new JMenuItem("人执黑棋");
+		rr_renzhibai = new JMenuItem("人执白棋");
 		renjiduiyi = new JMenu("人机对弈");
-		renzhihei = new JMenuItem("人执黑棋");
-		renzhibai = new JMenuItem("人执白棋");
+		rj_renzhihei = new JMenuItem("人执黑棋");
+		rj_renzhibai = new JMenuItem("人执白棋");
 		draw = new Draw();
 		userInfo = new JLabel("未登录");
 		userInfo.setHorizontalAlignment(JLabel.CENTER);
@@ -53,8 +57,10 @@ public class Qipan extends JFrame
 		xitong.add(renrenduiyi);
 		xitong.add(renjiduiyi);
 		
-		renjiduiyi.add(renzhihei);
-		renjiduiyi.add(renzhibai);
+		renrenduiyi.add(rr_renzhihei);
+		renrenduiyi.add(rr_renzhibai);
+		renjiduiyi.add(rj_renzhihei);
+		renjiduiyi.add(rj_renzhibai);
 		
 		this.setLayout(new BorderLayout());
 		
@@ -67,7 +73,23 @@ public class Qipan extends JFrame
 	
 	public void addListener()
 	{
-		
+		rr_renzhihei.addActionListener(new ActionListener())
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				draw.getUser().setChessColor(1);
+				draw.getUser().setChessColor(1);
+			}
+		};
+		rr_renzhibai.addActionListener(new ActionListener())
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				
+			}
+		};
 	}
 	public static void main(String[] args)
 	{
