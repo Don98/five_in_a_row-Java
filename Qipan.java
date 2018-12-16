@@ -29,7 +29,8 @@ public class Qipan extends JFrame
 		
 		init();
 		
-		this.setSize(1200,900);
+		// this.setSize(1200,900);
+		this.setSize(900,900);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int)d.getWidth();
@@ -37,6 +38,8 @@ public class Qipan extends JFrame
 		
 		this.setLocation((width - 900)/2,(hegiht - 900)/2);
 		this.setVisible(true);
+		
+		addListener();
 	}
 	
 	public void init()
@@ -81,6 +84,7 @@ public class Qipan extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				draw.getUser().setChessColor(1);
+				draw.playNewGame();
 			}
 		});
 		rr_renzhibai.addActionListener(new ActionListener()
@@ -89,11 +93,23 @@ public class Qipan extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				draw.getUser().setChessColor(2);
+				draw.playNewGame();
 			}
 		});
 	}
+	public Draw getDraw()
+	{
+		return draw;
+	}
+	public void setDraw(Draw draw)
+	{
+		this.draw = draw;
+	}
+	
 	public static void main(String[] args)
 	{
-		new Qipan();
+		User user = new User();
+		user.setUsername("铁蛋");
+		new Qipan().getDraw().setUser(user);
 	}
 }

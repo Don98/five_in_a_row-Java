@@ -1,6 +1,7 @@
 import javax.swing.JPanel;
 import java.awt.*;
 import javax.swing.ImageIcon;
+import java.awt.event.*;
 
 public class Draw extends JPanel
 {
@@ -17,12 +18,17 @@ public class Draw extends JPanel
 	public Draw()
 	{
 		place = new int[15][15];
-		String basePath = this.getClass().getResource("/").getPath();
-		black = new ImageIcon(basePath + "black.png");
-		white = new ImageIcon(basePath + "white.png");
+		// String basePath = this.getClass().getResource("\\").getPath();
+		// System.out.println(basePath);
+		// black = new ImageIcon(basePath + "./black.png");
+		// white = new ImageIcon(basePath + "./white.png");
+		black = new ImageIcon("./black.png");
+		white = new ImageIcon("./white.png");
 		this.setSize(800,800);
 		// this.setBackground(new Color(220,191,157)); // 木色
 		this.setBackground(new Color(192,192,192)); // 亮银色
+		
+		addListener();
 	}
 	
 	@Override
@@ -78,10 +84,45 @@ public class Draw extends JPanel
 			}
 		}
 	}
-	// public void addListener()
-	// {
-		// this.addMouseListener(new MouseListener())
-	// }
+	public void addListener()
+	{
+		this.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!gameStart) return;
+				if(user.getChessColor() != whichColor) return;
+				
+				int x = e.getX();
+				int y = e.getY();
+				
+				if(x >= 0 + shamt_x - 10 && x <= length * size + shamt_x + 10&& y >= 0 + shamt_y - 10&& y <= length * size + shamt_y + 10)
+				{
+					
+					x = (int)Math.round((x - shamt_x) / (length * 1.0));
+					y = (int)Math.round((y - shamt_y) / (length * 1.0));
+					if(place[x][y] != 0)	return;
+					place[x][y] = user.getChessColor();
+					
+					repaint();
+					
+					// System.out.println(x);
+					// System.out.println(y);
+				
+					changeChessColor();
+				}
+			}		
+		});
+	}
+	
+	public void changeChessColor()
+	{		
+		System.out.println(whichColor);
+		if(whichColor == 1)	whichColor = 2;
+		else if(whichColor == 2) whichColor = 1;
+	}
+	
 	public void playNewGame()
 	{
 		place = new int[15][15];
