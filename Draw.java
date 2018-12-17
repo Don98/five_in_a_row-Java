@@ -2,7 +2,8 @@ import javax.swing.JPanel;
 import java.awt.*;
 import javax.swing.ImageIcon;
 import java.awt.event.*;
-
+import java.net.Socket;
+import java.io.IOException;
 public class Draw extends JPanel
 {
 	private int shamt_x = 80;
@@ -14,11 +15,13 @@ public class Draw extends JPanel
 	private ImageIcon black,white;
 	private int size = 15;
 	private int length = 50;
+	private int gameState;
+	private Socket s;
 	
 	public Draw()
 	{
 		place = new int[15][15];
-		// String basePath = this.getClass().getResource("\\").getPath();
+		// String basePath = this.getClass().getResource("\\").getPointath();
 		// System.out.println(basePath);
 		// black = new ImageIcon(basePath + "./black.png");
 		// white = new ImageIcon(basePath + "./white.png");
@@ -27,7 +30,8 @@ public class Draw extends JPanel
 		this.setSize(800,800);
 		// this.setBackground(new Color(220,191,157)); // 木色
 		this.setBackground(new Color(192,192,192)); // 亮银色
-		
+		// this.setBackground(new Color(255,255,255));
+		user = new User();
 		addListener();
 	}
 	
@@ -75,11 +79,11 @@ public class Draw extends JPanel
 			{
 				if(place[i][j] == 1)
 				{
-					g.drawImage(black.getImage(),i * length + shamt_x,j * length + shamt_y,length / 2 ,length / 2,this);
+					g.drawImage(black.getImage(),i * length + shamt_x - length / 4,j * length + shamt_y - length / 4,length / 2 ,length / 2,this);
 				}
 				else if(place[i][j] == 2)
 				{
-					g.drawImage(white.getImage(),i * length + shamt_x,j * length + shamt_y,length / 2 ,length / 2,this);
+					g.drawImage(white.getImage(),i * length + shamt_x - length / 4,j * length + shamt_y - length / 4,length / 2 ,length / 2,this);
 				}
 			}
 		}
@@ -111,22 +115,73 @@ public class Draw extends JPanel
 					// System.out.println(y);
 				
 					changeChessColor();
+					showGameInfo();
+					
+					if(gameState == 1)
+					{
+						GameData data = new GameData();
+						data.setUser(user);
+						data.setPoint(new Point(x,y));
+						sendIonfo2Server(data);
+					}
+					else if(gameState == 2)
+					{
+						
+					}
 				}
 			}		
 		});
 	}
 	
+	public void connectServer()
+	{
+		try
+		{
+			s = new Socket("127.0.0.1",8888);
+			GameData d = new GameData();
+			d.setUser(user);
+			IOUtil.writeObject(d,s.getOutputStream());
+			new Thread(new GetInforFromServer()).start();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void sendIonfo2Server(GameData data)
+	{
+		try
+		{
+			IOUtil.writeObject(data,s.getOutputStream());
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	public void changeChessColor()
 	{		
-		System.out.println(whichColor);
 		if(whichColor == 1)	whichColor = 2;
 		else if(whichColor == 2) whichColor = 1;
+	}
+	
+	public void showGameInfo()
+	{
+		if(whichColor == 1)
+		{
+			Qipan.gameInfo.setText("轮到黑方下棋");
+		}
+		else if(whichColor == 2)
+		{
+			Qipan.gameInfo.setText("轮到白方下棋");
+		}
 	}
 	
 	public void playNewGame()
 	{
 		place = new int[15][15];
 		gameStart = true;
+		// whichColor = this.getUser().getChessColor();
 		whichColor = 1;
 	}
 	
@@ -137,5 +192,36 @@ public class Draw extends JPanel
 	public void setUser(User user)
 	{
 		this.user = user;
+	}
+	public int getGameSate()
+	{
+		return gameState;
+	}
+	public void setGameState(int gameState)
+	{
+		this.gameState = gameState;
+	}
+	
+	class GetInforFromServer implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			while(true)
+			{
+				try
+				{
+					GameData data = (GameData)IOUtil.readObject(s.getInputStream());
+					place[data.getPoint().getX()][data.getPoint().getY()] = data.getUser().getChessColor();
+					repaint();
+					changeChessColor();
+					showGameInfo();
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				
+			}
+		}
 	}
 }
