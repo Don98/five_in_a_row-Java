@@ -8,22 +8,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JTextArea;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JScrollPane;
 import java.awt.event.*;
- // this.setTitle("绝对布局");//设置标题名字
-	   // this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//默认退出
-	   // this.setBounds(100, 100, 250, 100);//设置窗体的大小
-	   // this.contentPane=new JPanel();//初始化面板
-	   // this.contentPane.setLayout(null);//设置布局NULL
-	   // this.button1=new JButton("按钮1");//给按钮名字
-	   // this.button1.setBounds(6,6,90,30);//设置按钮名字
-	   // this.contentPane.add(button1);//加入面板中
-	   // this.button2=new JButton("按钮2");
-	   // this.contentPane.add(button2);
-	   // this.button2.setBounds(138, 26, 90, 30);
-	   // this.add(this.contentPane);
-	   // this.setVisible(true);
-	   
+
 public class Qipan extends JFrame
 {
 	private JMenuBar bar;
@@ -44,6 +35,13 @@ public class Qipan extends JFrame
 	private JButton retract;
 	private JButton give_up;
 	private JButton peace;
+	private JButton send;
+	private JTextArea input;
+	private JTextArea output;
+	private String input_content;
+	private boolean is_first;
+	private boolean is_login;
+	private int chose;
 	
 	public Qipan()
 	{
@@ -66,6 +64,9 @@ public class Qipan extends JFrame
 	
 	public void init()
 	{
+		is_first = true;
+		is_login = false;
+		chose = 0;
 		bar = new JMenuBar();
 		xitong = new JMenu("系统功能");
 		login = new JMenuItem("登录");
@@ -112,6 +113,46 @@ public class Qipan extends JFrame
 		// start.setBorder(new RoundBorder());
 		peace.setBounds(80,420,200,70);
 		
+		send = new JButton("发送");
+		send.setFont(new Font("宋体", Font.PLAIN, 18));
+		// start.setBorder(new RoundBorder());
+		send.setBounds(190,750,90,30);
+		
+		output = new JTextArea();
+		// output.setBounds(80,520,200,120);
+		// output.setBounds(0,0,10,20);
+		output.setEditable(false);
+		
+		input = new JTextArea();
+		input.setText("登录之后才可评论且评论不能为空！");
+    	input.setForeground(new Color(144,144,144));
+		// input.setBounds(0,0,10,20);
+		
+		output.setSelectedTextColor(Color.BLUE);
+		output.setLineWrap(true);         
+		input.setLineWrap(true);         
+		output.setWrapStyleWord(true); 
+		input.setWrapStyleWord(true); 
+		
+		JPanel panelOutput;
+		JPanel panelInput;
+
+		panelOutput = new JPanel();
+		// panelOutput.setLayout(null);
+		JScrollPane outputScorll = new JScrollPane(output);
+		outputScorll.setPreferredSize(new Dimension(200,120));
+		panelOutput.add(outputScorll);
+		panelOutput.setBounds(80,520,200,120);
+		
+		panelInput = new JPanel();
+		// panelInput.setLayout(null);
+		JScrollPane inputScorll = new JScrollPane(input);
+		inputScorll.setPreferredSize(new Dimension(200,70));
+		panelInput.add(inputScorll);
+		// panelInput.add(new JScrollPane(input));
+		panelInput.setBounds(80,670,200,70);
+		
+		
 		bar.add(xitong);
 		xitong.add(login);
 		xitong.add(renrenduiyi);
@@ -138,7 +179,14 @@ public class Qipan extends JFrame
 		buttons.add(retract);
 		buttons.add(give_up);
 		buttons.add(peace);
+		buttons.add(send);
+		// buttons.add(output);
+		// buttons.add(input);
+		buttons.add(panelOutput);
+		buttons.add(panelInput);
 		
+		// buttons.setContentPane(panelInput);
+		// buttons.setContentPane(panelOutput);
 		// all.setLayout(null);
 		
 		// all.add(bar);
@@ -191,10 +239,152 @@ public class Qipan extends JFrame
 					{
 						draw.getUser().setUsername(username);
 						userInfo.setText("欢迎你，" + username);
+						is_login = true;
+						input_content = "系统提示：欢迎你，" + username + "!\n\n";
+						output.setText(input_content);
+						// output.setText(input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content);
 					}
 				}
 			}
 		});
+		input.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent arg0) {
+				int key = arg0.getKeyCode();
+				if(!is_login)
+				{
+					warn_login();
+				}
+				else
+				{
+					if(key == '\n' && input.getText().toString() != null && !input.getText().toString().trim().equals("") && is_login){
+						input_content += draw.getUser().getUsername() + " : " + input.getText().toString() + "\n\n";
+						input.setText("");
+						output.setText(input_content);
+					}
+					else if(input.getText().toString() == null || input.getText().toString().trim().equals("") || !is_login)
+					{
+						input.setText("");
+					}
+				}
+			}
+		 
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		 
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		input.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(is_first)
+				{
+					is_first = false;
+					input.setText("");
+					input.setForeground(new Color(0,0,0));
+				}
+			}
+		});
+		one.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!is_login)
+				{
+					warn_login();
+				}
+				else if(chose == 2)
+				{
+					chose = 1;
+					draw.getUser().setChessColor(0);
+					draw.setGameState(1);
+					draw.playNewGame();
+					draw.connectServer();
+					if(draw.getUser().getChessColor() == 1)
+					{
+						gameInfo.setText("游戏开始,轮到黑方下棋");
+					}
+					else if(draw.getUser().getChessColor() == 2)
+					{
+						gameInfo.setText("游戏开始,轮到白方下棋");
+					}
+				}
+			}
+		});
+		two.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!is_login)
+				{
+					warn_login();
+				}
+				else if(chose == 0)
+				{
+					chose = 2;
+					draw.getUser().setChessColor(0);
+					draw.setGameState(2);
+					draw.playNewGame();
+					draw.connectServer();
+				}
+			}
+		});
+		retract.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!is_login)
+				{
+					warn_login();
+				}
+				else
+				{
+					//询问对方;
+				}
+			}
+		});
+		give_up.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!is_login)
+				{
+					warn_login();
+				}
+				else
+				{
+					//询问对方;
+				}
+			}
+		});
+		peace.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!is_login)
+				{
+					warn_login();
+				}
+				else
+				{
+					//询问对方;
+				}
+			}
+		});
+	}
+	public void warn_login()
+	{
+		JOptionPane.showConfirmDialog(null,"请登录才能使用!");
+		return;
 	}
 	public Draw getDraw()
 	{
