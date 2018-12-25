@@ -20,18 +20,12 @@ public class Qipan extends JFrame
 	private JMenuBar bar;
 	private JMenu xitong;
 	private JMenuItem login;
-	private JMenu renrenduiyi;
-	private JMenuItem rr_renzhihei;
-	private JMenuItem rr_renzhibai;
-	private JMenu renjiduiyi;
-	private JMenuItem rj_renzhihei;
-	private JMenuItem rj_renzhibai;
 	private Draw draw;
 	public static JLabel userInfo;
 	public static JLabel gameInfo;
 	private JPanel buttons;
-	private JButton one;
-	private JButton two;
+	private JButton hvh;
+	private JButton hvA;
 	private JButton retract;
 	private JButton give_up;
 	private JButton peace;
@@ -45,7 +39,7 @@ public class Qipan extends JFrame
 	
 	public Qipan()
 	{
-		super("陈钦德五子棋v1.0");
+		super("五子棋v1.0");
 		
 		init();
 		
@@ -70,13 +64,8 @@ public class Qipan extends JFrame
 		bar = new JMenuBar();
 		xitong = new JMenu("系统功能");
 		login = new JMenuItem("登录");
-		renrenduiyi = new JMenu("人人对弈");
-		rr_renzhihei = new JMenuItem("人执黑棋");
-		rr_renzhibai = new JMenuItem("人执白棋");
-		renjiduiyi = new JMenu("人机对弈");
-		rj_renzhihei = new JMenuItem("人执黑棋");
-		rj_renzhibai = new JMenuItem("人执白棋");
 		draw = new Draw();
+		draw.setQipan(this);
 		userInfo = new JLabel("未登录");
 		userInfo.setHorizontalAlignment(JLabel.CENTER);
 		gameInfo = new JLabel("游戏未开始");
@@ -88,15 +77,15 @@ public class Qipan extends JFrame
 		buttons.setBounds(800,20,400,790);
 		// buttons.setBackground(new Color(255,255,255));
 		
-		one = new JButton("人人对弈");
-		one.setFont(new Font("宋体", Font.PLAIN, 20));
+		hvh = new JButton("人人对弈");
+		hvh.setFont(new Font("宋体", Font.PLAIN, 20));
 		// start.setBorder(new RoundBorder());
-		one.setBounds(80,20,200,70);
+		hvh.setBounds(80,20,200,70);
 
-		two = new JButton("人机对弈");
-		two.setFont(new Font("宋体", Font.PLAIN, 20));
+		hvA = new JButton("人机对弈");
+		hvA.setFont(new Font("宋体", Font.PLAIN, 20));
 		// start.setBorder(new RoundBorder());
-		two.setBounds(80,120,200,70);
+		hvA.setBounds(80,120,200,70);
 		
 		retract = new JButton("悔棋");
 		retract.setFont(new Font("宋体", Font.PLAIN, 20));
@@ -155,13 +144,6 @@ public class Qipan extends JFrame
 		
 		bar.add(xitong);
 		xitong.add(login);
-		xitong.add(renrenduiyi);
-		xitong.add(renjiduiyi);
-		
-		renrenduiyi.add(rr_renzhihei);
-		renrenduiyi.add(rr_renzhibai);
-		renjiduiyi.add(rj_renzhihei);
-		renjiduiyi.add(rj_renzhibai);
 		
 		// this.setLayout(new BorderLayout());
 		this.setLayout(null);
@@ -174,8 +156,8 @@ public class Qipan extends JFrame
 		draw.setBounds(0,20,800,790);
 		this.add(draw);
 		this.add(buttons);
-		buttons.add(one);
-		buttons.add(two);
+		buttons.add(hvh);
+		buttons.add(hvA);
 		buttons.add(retract);
 		buttons.add(give_up);
 		buttons.add(peace);
@@ -198,30 +180,6 @@ public class Qipan extends JFrame
 	
 	public void addListener()
 	{
-		rr_renzhihei.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				draw.getUser().setChessColor(1);
-				draw.setGameState(1);
-				draw.playNewGame();
-				gameInfo.setText("游戏开始,轮到黑方下棋");
-				draw.connectServer();
-			}
-		});
-		rr_renzhibai.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				draw.getUser().setChessColor(2);
-				draw.setGameState(1);
-				draw.playNewGame();
-				gameInfo.setText("游戏开始,轮到白方下棋");
-				draw.connectServer();
-			}
-		});
 		login.addActionListener(new ActionListener()
 		{
 			@Override
@@ -240,9 +198,12 @@ public class Qipan extends JFrame
 						draw.getUser().setUsername(username);
 						userInfo.setText("欢迎你，" + username);
 						is_login = true;
-						input_content = "系统提示：欢迎你，" + username + "!\n\n";
+						Content t = draw.getContent();
+						t.addInput_content("系统提示：欢迎你，" + username + "!\n\n");
+						input_content = t.getInput_content();
+						draw.setContent(t);
 						output.setText(input_content);
-						// output.setText(input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content + input_content);
+						draw.connectServer();
 					}
 				}
 			}
@@ -257,9 +218,14 @@ public class Qipan extends JFrame
 				else
 				{
 					if(key == '\n' && input.getText().toString() != null && !input.getText().toString().trim().equals("") && is_login){
-						input_content += draw.getUser().getUsername() + " : " + input.getText().toString() + "\n\n";
+						String t = draw.getContent().getInput_content();
+						t += draw.getUser().getUsername() + " : " + input.getText().toString() + "\n\n";
 						input.setText("");
-						output.setText(input_content);
+						output.setText(t);
+						draw.getContent().setInput_content(t);
+						GameData data = draw.getData(-8);
+						data.getContent().setInput_content(t);
+						draw.sendIonfo2Server(data);
 					}
 					else if(input.getText().toString() == null || input.getText().toString().trim().equals("") || !is_login)
 					{
@@ -289,7 +255,7 @@ public class Qipan extends JFrame
 				}
 			}
 		});
-		one.addMouseListener(new MouseAdapter()
+		hvh.addMouseListener(new MouseAdapter()
 		{
 			@Override
 			public void mouseClicked(MouseEvent e)
@@ -298,13 +264,13 @@ public class Qipan extends JFrame
 				{
 					warn_login();
 				}
-				else if(chose == 2)
+				else if(draw.getGameState() == 0)
 				{
-					chose = 1;
 					draw.getUser().setChessColor(0);
 					draw.setGameState(1);
-					draw.playNewGame();
-					draw.connectServer();
+					draw.playNewGame(false);
+					// draw.connectServer();
+					System.out.println(draw.getUser().getChessColor());
 					if(draw.getUser().getChessColor() == 1)
 					{
 						gameInfo.setText("游戏开始,轮到黑方下棋");
@@ -316,7 +282,7 @@ public class Qipan extends JFrame
 				}
 			}
 		});
-		two.addMouseListener(new MouseAdapter()
+		hvA.addMouseListener(new MouseAdapter()
 		{
 			@Override
 			public void mouseClicked(MouseEvent e)
@@ -325,13 +291,12 @@ public class Qipan extends JFrame
 				{
 					warn_login();
 				}
-				else if(chose == 0)
+				else if(draw.getGameState() == 0)
 				{
-					chose = 2;
-					draw.getUser().setChessColor(0);
+					draw.getUser().setChessColor((int)(Math.random()*2)+1);
+					// draw.getUser().setChessColor(2);
 					draw.setGameState(2);
-					draw.playNewGame();
-					draw.connectServer();
+					draw.playNewGame(true);
 				}
 			}
 		});
@@ -344,8 +309,30 @@ public class Qipan extends JFrame
 				{
 					warn_login();
 				}
+				else if(draw.getGameState() == 0){
+					
+				}
 				else
-				{
+				{	
+					String[] options = {"确定", "取消"};
+					int x = JOptionPane.showOptionDialog(null, "向对方发送悔棋请求",
+							"悔棋",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+					if(x == 0){
+						//System.out.println("重新开始");
+						//重新开始游戏
+						Content cont = draw.getContent();
+						//System.out.println("giveUp: "+draw.getContent().getGive_up());
+						cont.setGive_up(draw.getUser().getChessColor());
+						draw.setContent(cont);
+						//System.out.println("giveUp: "+draw.getContent().getGive_up());
+						GameData data = draw.getData(-5);
+						draw.sendIonfo2Server(data);
+					}else{
+						//System.out.println("取消");
+					}
+					//用2x2的矩阵存储黑棋和白棋最近下的位置
+					//轮到自己下的时候把另一个棋子代表的行清除为-1
 					//询问对方;
 				}
 			}
@@ -359,9 +346,28 @@ public class Qipan extends JFrame
 				{
 					warn_login();
 				}
+				else if(draw.getGameState() == 0){
+					
+				}
 				else
 				{
-					//询问对方;
+					String[] options = {"确定", "取消"};
+					int x = JOptionPane.showOptionDialog(null, "确定认输吗？",
+							"认输",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+					if(x == 0){
+						//System.out.println("重新开始");
+						//重新开始游戏
+						Content cont = draw.getContent();
+						//System.out.println("giveUp: "+draw.getContent().getGive_up());
+						cont.setGive_up(draw.getUser().getChessColor());
+						draw.setContent(cont);
+						//System.out.println("giveUp: "+draw.getContent().getGive_up());
+						GameData data = draw.getData(-2);
+						draw.sendIonfo2Server(data);
+					}else{
+						//System.out.println("取消");
+					}
 				}
 			}
 		});
@@ -374,9 +380,57 @@ public class Qipan extends JFrame
 				{
 					warn_login();
 				}
+				else if(draw.getGameState() == 0){
+					
+				}
 				else
 				{
+					String[] options = {"确定", "取消"};
+					int x = JOptionPane.showOptionDialog(null, "向对方发送求和请求",
+							"求和",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+					if(x == 0){
+						//System.out.println("重新开始");
+						//重新开始游戏
+						Content cont = draw.getContent();
+						//System.out.println("giveUp: "+draw.getContent().getGive_up());
+						//cont.setPeace(draw.getUser().getChessColor());
+						draw.setContent(cont);
+						//System.out.println("giveUp: "+draw.getContent().getGive_up());
+						GameData data = draw.getData(-3);
+						draw.sendIonfo2Server(data);
+					}else{
+						//System.out.println("取消");
+					}
 					//询问对方;
+				}
+			}
+		});
+		send.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!is_login)
+				{
+					warn_login();
+				}
+				else
+				{
+					if(input.getText().toString() != null && !input.getText().toString().trim().equals("") && is_login){
+						String t = draw.getContent().getInput_content();
+						t += draw.getUser().getUsername() + " : " + input.getText().toString() + "\n\n";
+						input.setText("");
+						output.setText(t);
+						draw.getContent().setInput_content(t);
+						GameData data = draw.getData(-8);
+						data.getContent().setInput_content(t);
+						draw.sendIonfo2Server(data);
+					}
+					else if(input.getText().toString() == null || input.getText().toString().trim().equals("") || !is_login)
+					{
+						input.setText("");
+					}
 				}
 			}
 		});
@@ -394,12 +448,15 @@ public class Qipan extends JFrame
 	{
 		this.draw = draw;
 	}
-	
 	public static void main(String[] args)
 	{
 		// User user = new User();
 		// user.setUsername("铁蛋");
 		// new Qipan().getDraw().setUser(user);
 		new Qipan();
+	}
+	public void setOutput(String message)
+	{
+		output.setText(message);
 	}
 }
